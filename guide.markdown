@@ -243,12 +243,15 @@ Endpoints of note:
 
 ## Commenting
 
-You can post a comment either anonymously (without authentication) or as an authenticated user.
+You can post a comment either anonymously (authentication using your anonymous access token, but not as a specific user) or as an authenticated user.
+
+In both cases, you'll need to send an `Authorization` header with OAuth credentials; the difference is that, in the case of commenting anonymously, you'll send your "Anonymous Access Key" and sign your request using your "Anonymous Access Secret", and in the case of commenting as an authenticated user, you'll use the access token and secret that you received for the authenticated user.
 
 Anonymously (raw HTTP request):
 
     POST /assets/6a00d83455876069e20133ec50b8fa970b/comments.json
     Host: api.typepad.com
+    Authorization: ...
     Content-Length: 83
     Content-Type: application/json
     
@@ -268,8 +271,14 @@ And, in Perl:
 
     #!perl
     # Posting a comment anonymously...
+    my $tp_anon = WWW::TypePad->new(
+        consumer_key        => 'your consumer key',
+        consumer_secret     => 'your consumer secret',
+        access_token        => 'your anonymous access key',
+        access_token_secret => 'your anonymous access secret',
+    );
     my $post_id = '6a012877b13de7970c012877b143d0970c';
-    my $comment = $tp->assets->new_comment( $post_id, {
+    my $comment = $tp_anon->assets->new_comment( $post_id, {
         content => 'This is my comment.',
         name    => 'Someone',
         href    => 'http://www.example.com/',
